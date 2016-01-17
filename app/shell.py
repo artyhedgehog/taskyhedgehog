@@ -1,26 +1,22 @@
-#!/usr/bin/python3
-# coding: utf-8
-import cmd, datetime, locale
+from cmd import Cmd
+from datetime import datetime
+
+from app.interfaces import Ui, ServiceLocator, Service
+from app.models import Task, Interval
 
 
-class TaskyHedgehogShell(cmd.Cmd):
-    intro = 'Type help or ? to list commands.\n'
+class TaskyHedgehogShell(Ui, Cmd):
     prompt = '>\|/C. '
 
-    def __init__(self):
+    def run(self):
+        self.cmdloop('Type help or ? to list commands.\n')
+
+    def __init__(self, locator: ServiceLocator):
         super().__init__()
-        self._next_task_id = 0
-        locale.setlocale(locale.LC_ALL, "")
-        self.today = []  # :type : list[Task]
-        self.tomorrow = []  # :type : list[Task]
-        self.current = None # :type : Task
-        self.paused = []  # :type : list[Task]
-        self.troubles = []  # :type : list[str]
-        self.interferences = []  # :type : list[str]
+        self.service = locator.get_service()
 
     def do_plan(self, desc):
-        self.tomorrow.append(Task(self._generate_id(), desc))
-        pass
+        self.service.add_to_plan(desc)
 
     def do_done(self, desc: str = ''):
         if desc == '':
@@ -31,7 +27,8 @@ class TaskyHedgehogShell(cmd.Cmd):
                 print('No current task specified')
                 return
         else:
-            task = Task(self._generate_id(), desc, [Interval(end=datetime.datetime.now())])
+            task = Task(self._generate_id(), desc, [
+                Interval(end=datetime.now())])
         self.today.append(task)
 
     def do_do(self, desc: str):
@@ -77,32 +74,3 @@ class TaskyHedgehogShell(cmd.Cmd):
         task_id = self._next_task_id
         self._next_task_id += 1
         return task_id
-
-
-class Task(object):
-    def __init__(self, id: int, desc: str = '', times: list = None):
-        if times is None:
-            times = []
-        self.id = id
-        self.desc = desc
-        self.intervals = times
-
-    def start(self, dt=None) -> None:
-        if dt is None:
-            dt = datetime.datetime.now()
-        self.intervals.append(Interval())
-
-
-class Interval(object):
-    def __init__(self, start: datetime.datetime = datetime.datetime.now(), end: datetime.datetime = None):
-        self.start = start
-        self.end = end
-
-    def duration(self) -> datetime.timedelta:
-        if self.start is None or self.end is None:
-            return None
-        return self.end - self.start
-
-
-if __name__ == '__main__':
-    TaskyHedgehogShell().cmdloop()
