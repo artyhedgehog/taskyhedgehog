@@ -2,12 +2,20 @@ from datetime import datetime, timedelta
 
 
 class Task(object):
-    def __init__(self, id: int, desc: str = '', times: list = None):
+    def __init__(self, key: str, desc: str = '', times: list = None):
         if times is None:
             times = []
-        self.id = id
+        self.key = key
         self.desc = desc
         self.intervals = times
+
+    @staticmethod
+    def find_or_create(store: dict, key: str, desc: str) -> Task:
+        task = store.get(key)
+        if task is None:
+            task = Task(key, desc)
+        store[key] = task
+        return task
 
     def start(self, dt=None) -> None:
         if dt is None:

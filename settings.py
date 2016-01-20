@@ -1,9 +1,8 @@
-from config.shell import TaskyHedgehogShell
-from config.pickledao import PickleDao
+from app.shell import Shell
+from app.pickledao import PickleDao
 
-config = {
-    'components': {
-        'ui': TaskyHedgehogShell,
-        'dao': PickleDao
-    }
+
+components = {
+    'ui': Shell,
+    'dao': PickleDao
 }

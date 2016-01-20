@@ -10,11 +10,11 @@ class Dao(metaclass=Interface):
         pass
 
     @abstractmethod
-    def load_tasks_list(self, key: str, default: list) -> list:
+    def load_tasks_list(self, key: str, default: list) -> dict:
         """
         :param key: Key for stored value
         :param default: Default value
-        :rtype: list[Task]
+        :rtype: dict[Task]
         """
         pass
 
@@ -22,6 +22,7 @@ class Dao(metaclass=Interface):
     def load_task(self, key: str, default: object) -> Task:
         pass
 
+    @abstractmethod
     def load_notes_list(self, key: str, default: list):
         pass
 
@@ -66,5 +67,21 @@ class ServiceLocator(metaclass=Interface):
 
 class Service(metaclass=Interface):
     @abstractmethod
-    def add_to_plan(self, desc: str):
+    def add_to_plan(self, key: str, notes: list) -> Task:
+        pass
+
+    @abstractmethod
+    def add_to_done(self, key: str, notes: list) -> Task:
+        pass
+
+    @abstractmethod
+    def switch_to(self, key: str, notes: list) -> Task:
+        pass
+
+    @abstractmethod
+    def stop(self, notes: list) -> Task:
+        pass
+
+    @abstractmethod
+    def add_trouble(self, desc: str) -> None:
         pass

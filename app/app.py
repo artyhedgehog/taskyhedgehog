@@ -1,20 +1,38 @@
 import locale
 
-from app.interfaces import ServiceLocator, InterfaceError, Ui, Dao, \
-    Service
+from app.interfaces import ServiceLocator, Ui, Dao, Service
 from app.models import Task
-from app.pickledao import PickleDao
-from app.shell import TaskyHedgehogShell
-from lib.interface import implements
 
 
 class App(object, ServiceLocator, Service):
-    def __init__(self, config: dict):
+    def add_to_plan(self, key: str, notes: list = None) -> Task:
+        if notes is None:
+            notes = []
+        desc = '\n'.join(notes)
+        task = self._find_or_create_task(self._tomorrow, key, desc)
+        return task
+
+
+    def switch_to(self, key: str, notes: list) -> Task:
+        # TODO: implement
+        pass
+
+    def stop(self, notes: list) -> Task:
+        # TODO: implement
+        pass
+
+    def add_trouble(self, desc: str) -> None:
+        # TODO: implement
+        pass
+
+    def add_to_done(self, key: str, notes: list) -> Task:
+        # TODO: implement
+        pass
+
+    def __init__(self, components: dict):
         locale.setlocale(locale.LC_ALL, "")
 
-        components = config['components']
         self._ui = components['ui']()
-        self._service = components['service']()
         self._dao = components['dao']()
 
         self._next_task_id = 0
@@ -28,13 +46,13 @@ class App(object, ServiceLocator, Service):
         self._interferences = dao.load_notes_list('interferences', [])
 
     def get_dao(self) -> Dao:
-        pass
+        return self._dao
 
     def get_service(self) -> Service:
-        pass
+        return self
 
     def get_ui(self) -> Ui:
-        pass
+        return self._ui
 
-    def add_to_plan(self, desc: str):
-        self._tomorrow.append(Task(self._generate_id(), desc))
+    def run(self):
+        self.get_ui().run()

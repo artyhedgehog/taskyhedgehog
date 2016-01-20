@@ -1,11 +1,11 @@
 from cmd import Cmd
 from datetime import datetime
 
-from app.interfaces import Ui, ServiceLocator, Service
+from app.interfaces import Ui, ServiceLocator
 from app.models import Task, Interval
 
 
-class TaskyHedgehogShell(Ui, Cmd):
+class Shell(Ui, Cmd):
     prompt = '>\|/C. '
 
     def run(self):
@@ -15,21 +15,12 @@ class TaskyHedgehogShell(Ui, Cmd):
         super().__init__()
         self.service = locator.get_service()
 
-    def do_plan(self, desc):
+    def do_plan(self, desc: str):
         self.service.add_to_plan(desc)
 
-    def do_done(self, desc: str = ''):
-        if desc == '':
-            if self.current is not None:
-                task = self.current
-                self.current = None
-            else:
-                print('No current task specified')
-                return
-        else:
-            task = Task(self._generate_id(), desc, [
-                Interval(end=datetime.now())])
-        self.today.append(task)
+    def do_done(self, desc: str):
+        args = desc.split(maxsplit=2)
+        self.service.add_to_done(args.pop(0), args)
 
     def do_do(self, desc: str):
         if self.current is not None:
